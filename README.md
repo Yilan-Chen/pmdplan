@@ -1,6 +1,6 @@
 # pmdplan
 
-Version **0.1.0**. Apply planned missingness to existing intensive longitudinal data, and evaluate planned missingness designs.
+Version **0.1.0**. Apply planned missingness to intensive longitudinal data, and evaluate planned missingness designs.
 
 Install the development version from GitHub:
 
