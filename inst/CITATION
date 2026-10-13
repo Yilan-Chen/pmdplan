@@ -1,0 +1,11 @@
+bibentry(bibtype = "Manual",
+  title = "pmdplan: Construct and Evaluate Planned Missing Data Designs",
+  author = person("Yilan", "Chen"), year = "2026",
+  note = "R package version 0.1.0")
+
+bibentry(bibtype = "Article",
+  title = "Planned missingness in intensive longitudinal studies: Extensions and comparisons of multiform designs",
+  author = c(person("Yilan", "Chen"), person("Hongyun", "Liu")),
+  journal = "Behavior Research Methods", year = "2026", volume = "58",
+  pages = "215", doi = "10.3758/s13428-026-03035-8",
+  note = "Article 215; reference for multiform designs")

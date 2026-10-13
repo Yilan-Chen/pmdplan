@@ -1,0 +1,17 @@
+# Usage: Rscript tools/check_local.R /path/to/pmdplan
+args <- commandArgs(trailingOnly = TRUE)
+pkg <- normalizePath(if (length(args)) args[1] else ".", mustWork = TRUE)
+stopifnot(file.exists(file.path(pkg, "DESCRIPTION")))
+lib <- tempfile("pmdplan-library-")
+dir.create(lib, showWarnings = TRUE)
+R <- file.path(R.home("bin"), "R")
+install_status <- system2(R, c("CMD", "INSTALL", "--no-multiarch",
+                               paste0("--library=", shQuote(lib)), shQuote(pkg)))
+if (install_status != 0L) stop("Installation failed")
+.libPaths(c(lib, .libPaths()))
+library(pmdplan)
+for (test in list.files(file.path(pkg, "tests"), pattern = "[.]R$", full.names = TRUE))
+  source(test, encoding = "UTF-8")
+for (example in list.files(file.path(pkg, "inst", "examples"), pattern = "[.]R$", full.names = TRUE))
+  source(example, encoding = "UTF-8")
+cat("Local installation, regression checks and examples completed.\n")

@@ -1,0 +1,5 @@
+^tools$
+^pmdplan.*[.]zip$
+^pmdplan.*[.]tar[.]gz$
+^.*[.]Rcheck$
+

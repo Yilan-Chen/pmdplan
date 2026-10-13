@@ -1,0 +1,54 @@
+\name{analyze_mplus}
+\alias{analyze_mplus}
+\title{Analyze Complete or Planned-Missing Datasets with Mplus in Parallel}
+\description{Prepare one analysis per dataset using the default DSEM template, or write complete user-supplied input scripts unchanged. Optionally run Mplus and return paths and metadata for evaluation.}
+\usage{
+analyze_mplus(data,
+    items = list(Sy = c("y1", "y2", "y3"), Sx = c("x1", "x2", "x3"),
+                 Ty = c("y1", "y2", "y3"), Tx = c("x1", "x2", "x3")),
+    id = "id", time = "time", modelstring = NULL, metadata = NULL,
+    data_names = NULL, processors = 2, biterations = "(1000)", mc.cores = 1,
+    path = "mplus_analysis", time_interval = 1, missing = -9999,
+    run = TRUE, Mplus_command = NULL)
+}
+\arguments{
+\item{data}{A data frame, a pmd_data object, a list of these objects, a character vector of RDS/DAT paths, or a result from generate_mplus_data or pmd_batch. RDS files contain a data.frame or pmd_data. R data are exported to each task folder. With default syntax, existing DAT files are referenced without copying and require data_names. With custom syntax, the function does not locate, copy, parse, replace or verify the DATA FILE reference: the user supplies it in the complete script. The data argument still identifies the requested tasks; its DAT paths are recorded in manifest but need not equal a custom FILE value. NULL input entries remain failed tasks.}
+\item{items}{A named list containing the item column names for Sy, Sx, Ty and Tx in the default model. Each level must partition the same observed item set. Names must meet Mplus's 1--8 character naming rule and be unique ignoring case. The template reserves Sy, Sx, Ty, Tx, NCov, logVSy, logVSx, logcov, phi1--phi4 and err1--errK (K = number of items). Ignored with custom modelstring. All numeric columns, including covariates outside items, are exported and listed in NAMES. Default USEVARIABLES contains only the unique observed item names in items; ID and time are declared separately with CLUSTER and TINTERVAL.}
+\item{id, time}{The names of the participant identifier and measurement time columns for the default Mplus model, for example \code{id = "N_index"} and \code{time = "time"}. Both columns must contain numeric data for this template. R data are checked and sorted by these columns when modelstring=NULL; IDs must be finite integer-valued numeric values and time finite numeric with unique id/time pairs. Ignored for custom syntax: R row/column order is preserved and the script must specify the actual layout.}
+\item{modelstring}{A character string with line breaks or a character vector of lines containing a complete Mplus script, or a list of scripts. Defaults to NULL, which generates the default complete input. A single script is written for every task. For different scripts, supply a list with exactly one complete script per input dataset, including complete-data baselines and failed entries. Each list element is a character string or a character vector of lines. The list is matched by position, not by its names: element i corresponds to manifest row i. For pmd_batch results, use b$manifest row order even if b$data was reordered. A character vector is one shared script, never a vector of per-task scripts. The function calls writeLines on the selected script unchanged: no section parsing/merging, default sections, placeholder replacement, FILE search, or automatic line wrapping. Supply all required DATA, VARIABLE, ANALYSIS, MODEL, OUTPUT and any other sections yourself, with correct file paths, missing flags and line breaks. Supply a complete script, including all required sections.}
+\item{metadata}{A data frame containing dataset identifiers, or NULL to obtain them from a batch result. Supply one row per dataset in matching order with design and positive integer replication, optionally condition. Defaults for ordinary inputs are condition="condition1", design="analysis", replication=1,... . Row counts and unique identity combinations are checked; user-supplied order is not verified. Batch data are aligned to their manifest by object names.}
+\item{data_names}{A vector of names for all columns in an existing DAT file, in their saved order. Used with the default model. Required for default DAT input. Checks report required names that are missing; actual file column count/order is not inspected. Ignored in custom mode, where the complete script specifies NAMES.}
+\item{processors}{A positive integer specifying the number of processors per Mplus process, default 2. Used with the default model. Custom scripts specify PROCESSORS themselves.}
+\item{biterations}{A character string or a positive integer specifying BITERATIONS for the default model. "(1000)" uses minimum 1000 and default maximum 50000; "80000 (2000)" sets maximum 80000/minimum 2000. A positive integer maximum is also accepted. Custom scripts specify their own iteration settings.}
+\item{mc.cores}{A positive integer specifying the number of concurrent tasks, default 1, in both modes. Windows uses PSOCK/parLapply; macOS/Linux use mclapply. Each worker selects the script for its own task index.}
+\item{path}{A character string specifying a new or empty output directory. Each task gets a folder such as fit1_condition1_balanced_rep10. Labels preserve Unicode characters (including Chinese) and spaces; path separators, control characters and other characters forbidden in Windows filenames are replaced with underscores. Each label is limited to 50 characters, and an index prevents collisions. R input is exported as data_rep10_balanced.dat; INP/OUT names are analysis.inp/analysis.out. DAT names include the replication and sanitized design label, including complete for complete-data baselines. The design label follows the same character replacement and 50-character limit as folder labels; independent task folders prevent collisions. Existing DAT files retain their original names and locations. Directories use showWarnings=TRUE.}
+\item{time_interval}{A positive numeric value specifying TINTERVAL for the default model, default 1, or NULL to omit it. Ignored with custom syntax.}
+\item{missing}{A finite numeric value (default -9999) or a character string, "." or "*", specifying the missing-value flag for R data export. R/RDS missing values must be NA. For custom R input, the user-written MISSING declaration must agree with this export flag; the function does not edit or inspect that declaration. Default syntax assumes free-format data and does not accept blank missing flags. For existing fixed-format DAT files with blank missing fields, supply complete custom syntax including FORMAT and MISSING declarations. For custom existing DAT input, missing is unused; specify its actual missing declaration in the script.}
+\item{run}{A logical value. TRUE writes inputs and runs Mplus; FALSE only prepares files. Custom scripts are not parsed or checked for Mplus syntax validity in either case.}
+\item{Mplus_command}{A character string specifying the Mplus executable path, or NULL for automatic detection by MplusAutomation.}
+}
+\details{
+When modelstring=NULL, the shared DSEM template supplies MODEL and default TYPE=TWOLEVEL RANDOM, ESTIMATOR=BAYES, PROCESSORS=2, BITERATIONS=(1000), and OUTPUT: TECH8;. The identification constraints include logVSy/logVSx means fixed at 0, Ty/Tx means fixed at 0 and variances fixed at 1, and NCov BY Sy@1 Sx@1. This mode still prepares its own file references and wraps long generated paths. USEVARIABLES is determined by items. No FORMAT statement is generated: use complete custom syntax for fixed-format DAT files or a different selection of analysis variables. It does not generate complete data.
+
+With a custom modelstring, only basic character/list validity and list length are checked. Its selected text is passed directly to writeLines in each task folder; line breaks are the user's responsibility. writeLines terminates its character elements with newlines. No parts of the default template are added, and no literal placeholders are replaced. A shared script is suitable only when its paths/settings work unchanged in every task folder. Relative FILE paths resolve from that task's working directory; provide full paths or correct relative paths yourself. The manifest dat column records supplied/exported input data, not a parsed custom FILE reference.
+
+For R replications, the filename is data_repN_DESIGN.dat, where N is the metadata replication number and DESIGN is the sanitized design label. For example, data_rep1_balanced.dat and data_rep1_complete.dat identify two designs in replication 1. Custom scripts must explicitly reference the corresponding filename. For each replication, pmd_batch orders the PMD designs in names(designs) order, followed by complete when include_complete=TRUE. For 500 replications and three PMD designs, there are 1500 scripts without the baseline and 2000 with it. More generally, use length(b$data) or nrow(b$manifest), including failures and all conditions. List names do not change this ordering.
+
+All R columns must be numeric for export. Export uses write.table with only file, row.names=FALSE, col.names=FALSE and na set. In custom mode no automatic panel sorting or default item-name checks are performed. Original DAT files are not copied. MplusAutomation::runModels receives target and optional Mplus_command; all other runtime options use its defaults. Runs use separate working directories and restore the caller's directory on exit.
+
+Status prepared means run=FALSE; output_created means execution returned and analysis.out exists, not successful estimation or convergence. analysis_error records preparation/call failure or missing output. Per-task failures retain manifest rows. For evaluate_pmd keep all output paths/metadata, include TECH8 in Bayesian custom inputs and explicitly set its max_iterations to the actual Mplus maximum (default 50000). The analyzer does not read output contents or infer iteration settings from custom text.
+}
+\value{A list with manifest, output (expected .out paths, including failures), metadata, items (default item names; NULL in custom mode), and modelstring (the default MODEL text, or the original custom character/list input unchanged). Manifest is also saved as manifest.csv.}
+\seealso{\code{\link{pmd_batch}}, \code{\link{generate_mplus_data}}, \code{\link{evaluate_pmd}}}
+\examples{
+data("affect", package = "pmdplan")
+items <- list(Sy = paste0("y", 1:4), Sx = paste0("x", 1:4),
+              Ty = paste0("y", 1:4), Tx = paste0("x", 1:4))
+folder <- tempfile("mplus-analysis-")
+# Prepare input files without running Mplus.
+prepared <- analyze_mplus(affect, items = items,
+  id = "N_index", time = "time", processors = 2, biterations = "(1000)",
+  path = folder, run = FALSE)
+prepared$manifest
+unlink(folder, recursive = TRUE)
+}

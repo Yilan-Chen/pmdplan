@@ -1,0 +1,38 @@
+pmdplan contains separately licensed software and data.
+
+Software and original documentation
+-----------------------------------
+The software and original package documentation are licensed under the GNU
+General Public License, version 3 (GPL-3). See RShowDoc("GPL-3") in R or
+https://www.gnu.org/licenses/gpl-3.0.html .
+
+Rowland affect data
+-------------------
+The affect dataset in data/affect.rda is attributed to
+Zarah Rowland and Mario Wenzel. It is supplied under Creative Commons
+Attribution-NonCommercial 4.0 International (CC BY-NC 4.0), as reported by
+openESM for the Rowland (2020) dataset. This data component is not relicensed
+under GPL-3. The data terms do not change the license of the software.
+
+License: https://creativecommons.org/licenses/by-nc/4.0/
+Full legal text: https://creativecommons.org/licenses/by-nc/4.0/legalcode
+Dataset information: https://openesmdata.org/datasets/0006_rowland/
+Original study data: https://osf.io/jmz2n/
+Codebook: https://osf.io/5t4yg/
+
+Reference:
+Rowland, Z., and Wenzel, M. (2020). Mindfulness and affect-network density:
+does mindfulness facilitate disengagement from affective experiences in
+daily life? Mindfulness, 11, 1253-1266.
+https://doi.org/10.1007/s12671-020-01335-4
+
+Changes from the original study file: retain participant ID and eight emotion
+items; remove occasions with all eight items missing; number the remaining
+occasions within each participant; keep the first 76; rename the participant
+and item columns. The package preserves the resulting user-supplied baseline
+data1.dat values without centering, imputation or additional missingness.
+See help("affect", package = "pmdplan") for the column mapping.
+
+Reuse of the data requires attribution, identification of changes and
+noncommercial use under the linked license. No endorsement by the study
+authors or openESM is implied.

@@ -1,0 +1,26 @@
+Package: pmdplan
+Type: Package
+Title: Generate and Evaluate Planned Missing Data Designs
+Version: 0.1.0
+Authors@R: person("Yilan", "Chen", role = c("aut", "cre"),
+    email = "yilanchen83@gmail.com")
+Author: Yilan Chen [aut, cre]
+Maintainer: Yilan Chen <yilanchen83@gmail.com>
+Description: Applies planned item-form and measurement-occasion missingness to
+    existing longitudinal data, optionally across replications in parallel.
+    Evaluates existing Mplus output, posterior chains, or user-supplied estimates
+    using a common convergence and performance workflow. Calls Mplus to generate
+    complete replicated data using a two-factor dynamic structural equation model
+    template or custom model syntax, and analyzes existing datasets with Mplus
+    in parallel. Includes configurable
+    screening criteria and software-independent result schemas. Provides an
+    empirical affect dataset with 76 measurements per participant for PMD examples.
+License: file LICENSE
+Encoding: UTF-8
+LazyData: true
+LazyDataCompression: xz
+Depends: R (>= 4.1.0)
+Imports: stats, utils, parallel, codetools, tools
+Suggests: coda, MplusAutomation, lavaan, rstudioapi
+URL: https://github.com/Yilan-Chen/pmdplan
+BugReports: https://github.com/Yilan-Chen/pmdplan/issues
