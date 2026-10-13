@@ -1,6 +1,6 @@
 # pmdplan
 
-Version **0.1.0**. Apply planned missingness to existing longitudinal data, generate complete replicated data with Mplus when needed, and evaluate existing analysis results. Analyze complete or PMD datasets with Mplus in parallel.
+Version **0.1.0**. Apply planned missingness to existing intensive longitudinal data, and evaluate planned missingness designs.
 
 Install the development version from GitHub:
 
